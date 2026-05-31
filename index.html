@@ -23,13 +23,11 @@
 <div class="container">
     <h2>Llama AI チャットテスト</h2>
     
-    <!-- APIキー入力欄 -->
     <div class="input-group">
         <label for="apiKey">OpenRouter APIキー:</label>
         <input type="password" id="apiKey" placeholder="sk-or-v1-..." />
     </div>
 
-    <!-- 質問入力欄 -->
     <div class="input-group">
         <label for="prompt">質問内容:</label>
         <textarea id="prompt" placeholder="Llamaへの質問を入力してください..."></textarea>
@@ -48,7 +46,6 @@ async function sendRequest() {
     const resultDiv = document.getElementById('result');
     const sendBtn = document.getElementById('sendBtn');
 
-    // バリデーションチェック
     if (!apiKey) {
         alert('APIキーを入力してください。');
         return;
@@ -58,7 +55,6 @@ async function sendRequest() {
         return;
     }
 
-    // 画面のUI状態を「通信中」にする
     resultDiv.innerText = "思考中...";
     resultDiv.classList.remove('error');
     sendBtn.disabled = true;
@@ -67,11 +63,11 @@ async function sendRequest() {
         const response = await fetch("https://openrouter.ai", {
             method: "POST",
             headers: {
-                "Authorization": `Bearer ${apiKey}`,
+                "Authorization": "Bearer " + apiKey,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                "model": "meta-llama/llama-3.3-70b-instruct:free", // 無料版Llama 3.3
+                "model": "meta-llama/llama-3.3-70b-instruct:free",
                 "messages": [
                     { "role": "user", "content": prompt }
                 ]
@@ -81,19 +77,16 @@ async function sendRequest() {
         const data = await response.json();
 
         if (response.ok) {
-            // 成功したら回答を表示
+            // data.choices[0].message.content に修正
             resultDiv.innerText = data.choices[0].message.content;
         } else {
-            // エラーが返ってきた場合
             resultDiv.classList.add('error');
-            resultDiv.innerText = `エラーが発生しました:\n${data.error?.message || '不明なエラー'}`;
+            resultDiv.innerText = "エラーが発生しました:\n" + (data.error?.message || "不明なエラー");
         }
     } catch (error) {
-        // 通信自体が失敗した場合
         resultDiv.classList.add('error');
-        resultDiv.innerText = `通信エラーが発生しました:\n${error.message}`;
+        resultDiv.innerText = "通信エラーが発生しました:\n" + error.message;
     } finally {
-        // ボタンを元に戻す
         sendBtn.disabled = false;
     }
 }
